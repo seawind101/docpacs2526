@@ -13,8 +13,8 @@ if (!fs.existsSync(dataFolderPath)) {
 const dbPath = path.resolve(dataFolderPath, 'database.sqlite'); // Ensure database.sqlite is in the data folder
 const initSqlPath = path.resolve(dataFolderPath, 'database.sql'); // Ensure database.sql is in the data folder
 
-// Create the database.sql file with the necessary SQL commands
-const sqlCommands = `
+// If database.sql doesn't exist, create it with a sensible default schema
+const defaultSql = `
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
@@ -22,9 +22,12 @@ CREATE TABLE IF NOT EXISTS users (
     formbarId TEXT,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-);`
+);
+`;
 
-fs.writeFileSync(initSqlPath, sqlCommands.trim(), 'utf8');
+if (!fs.existsSync(initSqlPath)) {
+    fs.writeFileSync(initSqlPath, defaultSql.trim(), 'utf8');
+}
 
 async function initializeDatabase() {
     return new Promise((resolve, reject) => {
